@@ -1,0 +1,49 @@
+const express = require('express');
+const helmet = require('helmet');
+const cors = require('cors');
+const dotenv = require('dotenv');
+
+dotenv.config();
+
+const app = express();
+
+// Global Middlewares
+app.use(helmet());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || '*',
+  credentials: true
+}));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Health Check
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date() });
+});
+
+// Import Routers
+const authRouter = require('./modules/auth/auth.routes');
+const usersRouter = require('./modules/users/users.routes');
+const subjectsRouter = require('./modules/subjects/subjects.routes');
+const correctionsRouter = require('./modules/corrections/corrections.routes');
+const aiRouter = require('./modules/ai/ai.routes');
+const adminRouter = require('./modules/admin/admin.routes');
+const errorHandler = require('./middlewares/error');
+
+// Routes
+app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/users', usersRouter);
+app.use('/api/v1/subjects', subjectsRouter);
+app.use('/api/v1/corrections', correctionsRouter);
+app.use('/api/v1/ai', aiRouter);
+app.use('/api/v1/admin', adminRouter);
+
+// Global Error Handler
+app.use(errorHandler);
+
+// 404 Handler
+app.use((req, res) => {
+  res.status(404).json({ success: false, message: 'Route non trouvée' });
+});
+
+module.exports = app;
