@@ -2,19 +2,56 @@ const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const swaggerUi = require('swagger-ui-express');
+const swaggerJsdoc = require('swagger-jsdoc');
 
 dotenv.config();
 
 const app = express();
 
+// --- CONFIGURATION SWAGGER ---
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'StudyHub API',
+      version: '1.0.0',
+      description: 'Documentation de l\'API StudyHub - Plateforme d\'aide aux étudiants',
+    },
+    servers: [
+      {
+        url: `http://localhost:${process.env.PORT || 3000}`,
+        description: 'Serveur Local',
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+    },
+  },
+  apis: ['./src/modules/**/*.routes.js'], // Chemin vers les fichiers de routes pour extraire la doc
+};
+
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+
 // Global Middlewares
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false, // Désactivé pour permettre à Swagger UI de s'afficher correctement
+}));
 app.use(cors({
   origin: process.env.FRONTEND_URL || '*',
   credentials: true
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Documentation API
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Health Check
 app.get('/health', (req, res) => {

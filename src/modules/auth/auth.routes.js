@@ -27,6 +27,43 @@ const resetPasswordSchema = z.object({
 
 // --- HANDLERS ---
 
+/**
+ * @swagger
+ * /api/v1/auth/register:
+ *   post:
+ *     summary: Inscrire un nouvel utilisateur
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - nom
+ *               - email
+ *               - password
+ *               - role
+ *             properties:
+ *               nom:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               role:
+ *                 type: string
+ *                 enum: [ETUDIANT, ENSEIGNANT, ADMIN]
+ *               filiere_id:
+ *                 type: string
+ *               code:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Utilisateur créé avec succès
+ *       400:
+ *         description: Données invalides
+ */
 router.post('/register', validate(registerSchema), async (req, res, next) => {
   try {
     const user = await authService.register(req.body);
@@ -36,6 +73,32 @@ router.post('/register', validate(registerSchema), async (req, res, next) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/v1/auth/login:
+ *   post:
+ *     summary: Se connecter
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Connexion réussie
+ *       401:
+ *         description: Identifiants invalides
+ */
 router.post('/login', validate(loginSchema), async (req, res, next) => {
   try {
     const result = await authService.login(req.body);
