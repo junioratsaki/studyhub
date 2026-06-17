@@ -105,7 +105,7 @@ async function getCorrections(subjectId, userRole) {
 
   // Un étudiant ne voit que les corrections publiées
   if (userRole === 'ETUDIANT') {
-    query = query.eq("status', "PUBLIE');
+    query = query.eq('status', 'PUBLIE');
   }
 
   const { data, error } = await query.order('created_at', { ascending: false });
