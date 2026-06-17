@@ -6,6 +6,7 @@ const { uploadSingle } = require('../../middlewares/upload');
 const { requireRole } = require('../../middlewares/rbac');
 const { z } = require('zod');
 const { validate } = require('../../middlewares/validate');
+const { supabaseAdmin } = require('../../config/supabase');
 
 // --- SCHÉMAS DE VALIDATION ZOD ---
 
@@ -23,8 +24,9 @@ const subjectSchema = z.object({
 // Liste des sujets avec filtres
 router.get('/', auth, async (req, res, next) => {
   try {
-    const { filiere_id, matiere_id, annee, type_examen, page } = req.query;
+    const { ecole, filiere_id, matiere_id, annee, type_examen, page } = req.query;
     const result = await subjectsService.getSubjects({ 
+      ecole,
       filiere_id, 
       matiere_id, 
       annee: annee ? parseInt(annee) : undefined, 
