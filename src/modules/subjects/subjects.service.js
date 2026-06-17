@@ -94,15 +94,16 @@ async function createSubject({ file, body, userId }) {
   return subject;
 }
 
-async function getSubjects({ filiere_id, matiere_id, annee, type_examen, page = 1, limit = 20 }) {
+async function getSubjects({ ecole, filiere_id, matiere_id, annee, type_examen, page = 1, limit = 20 }) {
   const from = (page - 1) * limit;
   const to = from + limit - 1;
 
   let query = supabaseAdmin
     .from('subjects')
-    .select("*, filieres(nom), matieres(nom)', { count: "exact' })
-    .eq("status', "PUBLIE');
+    .select('*, filieres!inner(nom, ecole), matieres(nom)', { count: 'exact' })
+    .eq('status', 'PUBLIE');
 
+  if (ecole) query = query.eq('filieres.ecole', ecole);
   if (filiere_id) query = query.eq('filiere_id', filiere_id);
   if (matiere_id) query = query.eq('matiere_id', matiere_id);
   if (annee) query = query.eq('annee', annee);
@@ -128,8 +129,8 @@ async function searchSubjects({ q, filiere_id, page = 1, limit = 20 }) {
 
   let query = supabaseAdmin
     .from('subjects')
-    .select("*, filieres(nom), matieres(nom)', { count: "exact' })
-    .eq("status', "PUBLIE')
+    .select('*, filieres(nom), matieres(nom)', { count: 'exact' })
+    .eq('status', 'PUBLIE')
     .or(`title.ilike.%${q}%,description.ilike.%${q}%`);
 
   if (filiere_id) query = query.eq('filiere_id', filiere_id);
@@ -162,7 +163,7 @@ async function getSubjectById(id, userId) {
     .from('corrections')
     .select('*')
     .eq('subject_id', id)
-    .eq("status', "PUBLIE');
+    .eq('status', 'PUBLIE');
 
   if (cError) throw cError;
 

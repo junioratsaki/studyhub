@@ -10,7 +10,7 @@ async function getUsers({ page = 1, limit = 20, role, search }) {
 
   let query = supabaseAdmin
     .from('users')
-    .select("*, filieres(nom)', { count: "exact' });
+    .select('*, filieres(nom)', { count: 'exact' });
 
   if (role) query = query.eq('role', role);
   if (search) query = query.ilike('nom', `%${search}%`);
@@ -75,10 +75,10 @@ async function generateCode(adminId) {
 
 async function getStats() {
   const [users, subjects, corrections, sessions] = await Promise.all([
-    supabaseAdmin.from("users').select("role", { count: 'exact", head: true }), // Just an example, need group by
-    supabaseAdmin.from("subjects').select("status", { count: 'exact", head: true }),
-    supabaseAdmin.from("corrections').select("id", { count: 'exact", head: true }),
-    supabaseAdmin.from("ai_sessions').select("id", { count: 'exact", head: true })
+    supabaseAdmin.from('users').select('role', { count: 'exact', head: true }),
+    supabaseAdmin.from('subjects').select('status', { count: 'exact', head: true }),
+    supabaseAdmin.from('corrections').select('id', { count: 'exact', head: true }),
+    supabaseAdmin.from('ai_sessions').select('id', { count: 'exact', head: true })
   ]);
 
   // Pour des stats plus détaillées, on ferait des requêtes spécifiques
@@ -99,7 +99,7 @@ async function getLogs({ level, page = 1, limit = 50 }) {
 
   let query = supabaseAdmin
     .from('audit_logs')
-    .select("*, users(nom)', { count: "exact' });
+    .select('*, users(nom)', { count: 'exact' });
 
   if (level) query = query.eq('level', level);
 

@@ -11,7 +11,7 @@ const { validate } = require('../../middlewares/validate');
 
 const publishCorrectionSchema = z.object({
   content: z.string().optional(),
-  source: z.enum(["OFFICIELLE', "IA_GENEREE"]).default('OFFICIELLE"),
+  source: z.enum(["OFFICIELLE", "IA_GENEREE"]).default('OFFICIELLE'),
 });
 
 // --- ROUTES ---
@@ -33,7 +33,7 @@ router.get('/subject/:id', auth, async (req, res, next) => {
  */
 router.post('/subject/:id', 
   auth, 
-  rbac.requireRole("ENSEIGNANT', "ADMIN'), 
+  rbac.requireRole("ENSEIGNANT", "ADMIN"), 
   uploadOptional, 
   validate(publishCorrectionSchema), 
   async (req, res, next) => {
@@ -58,7 +58,7 @@ router.post('/subject/:id',
  */
 router.put('/:id/validate', 
   auth, 
-  rbac.requireRole("ENSEIGNANT', "ADMIN'), 
+  rbac.requireRole("ENSEIGNANT", "ADMIN"), 
   async (req, res, next) => {
     try {
       const result = await correctionsService.validateCorrection(req.params.id);
