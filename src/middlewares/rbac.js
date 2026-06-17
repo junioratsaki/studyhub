@@ -1,6 +1,6 @@
 /**
  * Middleware de contrôle d'accès basé sur les rôles (RBAC)
- * @param {...string} roles - Liste des rôles autorisés (ex: 'ADMIN', 'ENSEIGNANT')
+ * @param {...string} roles - Liste des rôles autorisés (ex: "ADMIN', "ENSEIGNANT')
  */
 function requireRole(...roles) {
   return (req, res, next) => {

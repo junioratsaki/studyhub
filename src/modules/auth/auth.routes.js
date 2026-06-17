@@ -10,7 +10,7 @@ const registerSchema = z.object({
   nom: z.string().min(2, 'Le nom est trop court'),
   email: z.string().email('Email invalide'),
   password: z.string().min(8, 'Le mot de passe doit faire au moins 8 caractères'),
-  role: z.enum(['ETUDIANT', 'ENSEIGNANT', 'ADMIN']),
+  role: z.enum(["ETUDIANT', "ENSEIGNANT", 'ADMIN"]),
   filiere_id: z.string().uuid('ID de filière invalide').optional(),
   code: z.string().optional(),
 });

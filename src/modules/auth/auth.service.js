@@ -6,13 +6,13 @@ const { sendEmail } = require('../../config/resend');
 async function register({ nom, email, password, role, filiere_id, code }) {
   // 1. Vérification du rôle ADMIN (Interdit via l'inscription publique)
   if (role === 'ADMIN') {
-    throw { status: 403, message: 'L'inscription en tant qu'administrateur est interdite via cette route.' };
+    throw { status: 403, message: `L'inscription en tant qu'administrateur est interdite via cette route.` };
   }
 
   // 2. Vérification du code d'accréditation pour les ENSEIGNANTS
   if (role === 'ENSEIGNANT') {
     if (!code) {
-      throw { status: 400, message: 'Un code d'accréditation est requis pour les enseignants.' };
+      throw { status: 400, message: `Un code d'accréditation est requis pour les enseignants.` };
     }
 
     const { data: accCode, error: accError } = await supabaseAdmin
@@ -23,12 +23,12 @@ async function register({ nom, email, password, role, filiere_id, code }) {
       .single();
 
     if (accError || !accCode) {
-      throw { status: 400, message: 'Code d'accréditation invalide, utilisé ou expiré.' };
+      throw { status: 400, message: `Code d'accréditation invalide, utilisé ou expiré.` };
     }
 
     // Vérifier l'expiration
     if (new Date(accCode.expires_at) < new Date()) {
-      throw { status: 400, message: 'Le code d'accréditation a expiré.' };
+      throw { status: 400, message: `Le code d'accréditation a expiré.` };
     }
   }
 
@@ -95,7 +95,7 @@ async function login({ email, password }) {
 
   // 2. Vérifier si le compte est actif
   if (!user.is_active) {
-    throw { status: 403, message: 'Ce compte est désactivé. Veuillez contacter l'administration.' };
+    throw { status: 403, message: `Ce compte est désactivé. Veuillez contacter l'administration.` };
   }
 
   // 3. Comparer les mots de passe
@@ -117,7 +117,7 @@ async function refreshToken(token) {
   // 1. Vérifier le refresh token
   const payload = verifyRefreshToken(token);
 
-  // 2. Récupérer l'utilisateur pour s'assurer qu'il existe toujours et est actif
+  // 2. Récupérer l"utilisateur pour s'assurer qu"il existe toujours et est actif
   const { data: user, error: fetchError } = await supabaseAdmin
     .from('users')
     .select('*')

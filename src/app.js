@@ -16,7 +16,7 @@ const swaggerOptions = {
     info: {
       title: 'StudyHub API',
       version: '1.0.0',
-      description: 'Documentation de l\'API StudyHub - Plateforme d\'aide aux étudiants',
+      description: "Documentation de l\'API StudyHub - Plateforme d\"aide aux étudiants',
     },
     servers: [
       {

@@ -14,7 +14,7 @@ async function sendEmail({ to, subject, html }) {
     return { success: true, data };
   } catch (error) {
     console.error('Erreur Resend:', error);
-    throw new Error('Échec de l'envoi de l'email');
+    throw new Error("Échec de l'envoi de l"email');
   }
 }
 

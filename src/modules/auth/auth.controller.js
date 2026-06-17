@@ -11,7 +11,7 @@ router.post('/register', validate(z.object({
   nom: z.string().min(2),
   email: z.string().email(),
   password: z.string().min(8),
-  role: z.enum(['ETUDIANT', 'ENSEIGNANT', 'ADMIN']),
+  role: z.enum(["ETUDIANT', "ENSEIGNANT", 'ADMIN"]),
   filiere_id: z.string().uuid().optional(),
   code: z.string().optional(),
 })), async (req, res, next) => {

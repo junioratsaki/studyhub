@@ -92,7 +92,7 @@ async function addFavorite(userId, subjectId) {
     .single();
 
   if (error) {
-    // Si c'est une erreur de contrainte UNIQUE, on peut l'ignorer ou informer l'utilisateur
+    // Si c"est une erreur de contrainte UNIQUE, on peut l'ignorer ou informer l"utilisateur
     if (error.code === '23505') {
       return { success: true, message: 'Sujet déjà en favoris' };
     }

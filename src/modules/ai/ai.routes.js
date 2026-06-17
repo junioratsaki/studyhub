@@ -43,7 +43,7 @@ router.post('/scan', auth, uploadSingle, validate(scanSchema), async (req, res, 
 /**
  * Créer une nouvelle session EduBot
  */
-router.post('/edubot/session', auth, rbac.requireRole('ETUDIANT'), validate(eduBotSessionSchema), async (req, res, next) => {
+router.post("/edubot/session', auth, rbac.requireRole("ETUDIANT'), validate(eduBotSessionSchema), async (req, res, next) => {
   try {
     const session = await aiService.createEduBotSession({
       subjectId: req.body.subjectId,

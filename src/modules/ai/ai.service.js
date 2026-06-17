@@ -69,6 +69,58 @@ async function scanDocument({ fileBuffer, mimetype, description }) {
 }
 
 /**
+ * Valide une correction par rapport à son sujet
+ */
+async function validateCorrectionIA({ subjectBuffer, subjectMime, correctionBuffer, correctionMime, correctionText }) {
+  const model = getModel();
+  const parts = [];
+
+  // Ajouter le sujet au contexte
+  if (subjectBuffer) {
+    parts.push({
+      inlineData: { data: subjectBuffer.toString('base64'), mimeType: subjectMime }
+    });
+  }
+
+  // Ajouter la correction (fichier ou texte)
+  if (correctionBuffer) {
+    parts.push({
+      inlineData: { data: correctionBuffer.toString('base64'), mimeType: correctionMime }
+    });
+  }
+
+  const prompt = `
+    Tu es un expert académique. Compare la CORRECTION fournie avec le SUJET d'examen.
+    
+    TÂCHE :
+    1. Vérifie si les réponses dans la correction correspondent aux questions du sujet.
+    2. Évalue la justesse des réponses.
+    3. Identifie d'éventuelles erreurs majeures ou hors-sujets.
+
+    CORRECTION TEXTUELLE (si fournie) : "${correctionText || 'N/A'}"
+
+    Retourne UNIQUEMENT un objet JSON :
+    {
+      "score_justesse": number (0 à 100),
+      "correspondance_sujet": boolean,
+      "erreurs_detectees": ["string"],
+      "analyse_pedagogique": "string"
+    }
+  `;
+
+  try {
+    const result = await model.generateContent([prompt, ...parts]);
+    const response = await result.response;
+    const text = response.text();
+    const jsonString = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    return JSON.parse(jsonString);
+  } catch (err) {
+    console.error('[AIService] Erreur validateCorrectionIA:', err);
+    return { score_justesse: 0, correspondance_sujet: false, erreurs_detectees: ["Erreur technique lors de la validation IA"] };
+  }
+}
+
+/**
  * Crée une nouvelle session de tutorat EduBot pour un sujet spécifique
  */
 async function createEduBotSession({ subjectId, userId }) {
@@ -117,13 +169,13 @@ async function streamEduBot({ sessionId, userMessage, res }) {
   const model = getModel();
 
   // Configuration des headers SSE
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection', 'keep-alive');
+  res.setHeader("Content-Type', "text/event-stream');
+  res.setHeader("Cache-Control', "no-cache');
+  res.setHeader("Connection', "keep-alive');
 
   const systemPrompt = `
     Tu es EduBot, le tuteur pédagogique de l'IUC (Institut Universitaire de la Côte). 
-    Ton objectif est d'aider l'étudiant à comprendre son sujet d'examen.
+    Ton objectif est d"aider l'étudiant à comprendre son sujet d"examen.
     
     MÉTHODE SOCRATIQUE OBLIGATOIRE :
     - Ne donne JAMAIS la réponse directement.
@@ -145,7 +197,7 @@ async function streamEduBot({ sessionId, userMessage, res }) {
   try {
     const chat = model.startChat({
       history: session.messages.map(m => ({
-        role: m.role === 'user' ? 'user' : 'model',
+        role: m.role === "user' ? "user" : 'model",
         parts: [{ text: m.content }]
       })),
       generationConfig: {

@@ -16,7 +16,7 @@ function verifyAccessToken(token) {
   try {
     return jwt.verify(token, ACCESS_SECRET);
   } catch (error) {
-    throw new Error('Token d'accès invalide ou expiré');
+    throw new Error("Token d'accès invalide ou expiré");
   }
 }
 

@@ -100,8 +100,8 @@ async function getSubjects({ filiere_id, matiere_id, annee, type_examen, page = 
 
   let query = supabaseAdmin
     .from('subjects')
-    .select('*, filieres(nom), matieres(nom)', { count: 'exact' })
-    .eq('status', 'PUBLIE');
+    .select("*, filieres(nom), matieres(nom)', { count: "exact' })
+    .eq("status', "PUBLIE');
 
   if (filiere_id) query = query.eq('filiere_id', filiere_id);
   if (matiere_id) query = query.eq('matiere_id', matiere_id);
@@ -128,8 +128,8 @@ async function searchSubjects({ q, filiere_id, page = 1, limit = 20 }) {
 
   let query = supabaseAdmin
     .from('subjects')
-    .select('*, filieres(nom), matieres(nom)', { count: 'exact' })
-    .eq('status', 'PUBLIE')
+    .select("*, filieres(nom), matieres(nom)', { count: "exact' })
+    .eq("status', "PUBLIE')
     .or(`title.ilike.%${q}%,description.ilike.%${q}%`);
 
   if (filiere_id) query = query.eq('filiere_id', filiere_id);
@@ -162,7 +162,7 @@ async function getSubjectById(id, userId) {
     .from('corrections')
     .select('*')
     .eq('subject_id', id)
-    .eq('status', 'PUBLIE');
+    .eq("status', "PUBLIE');
 
   if (cError) throw cError;
 
@@ -195,7 +195,7 @@ async function deleteSubject(id, requestingUser) {
   if (!subject) throw { status: 404, message: 'Sujet non trouvé' };
 
   if (subject.author_id !== requestingUser.id && requestingUser.role !== 'ADMIN') {
-    throw { status: 403, message: 'Vous n'avez pas les droits pour supprimer ce sujet' };
+    throw { status: 403, message: `Vous n'avez pas les droits pour supprimer ce sujet` };
   }
 
   // 2. Supprimer le fichier du Storage

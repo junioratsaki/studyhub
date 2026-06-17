@@ -28,22 +28,56 @@ async function uploadCorrectionFile(fileBuffer, mimetype) {
 }
 
 async function publishCorrection({ subjectId, content, file, source, userId }) {
+  // 1. Récupérer le sujet associé pour le contexte IA
+  const { data: subject, error: sError } = await supabaseAdmin
+    .from('subjects')
+    .select('*, storage_path')
+    .eq('id', subjectId)
+    .single();
+
+  if (sError || !subject) throw { status: 404, message: 'Sujet introuvable' };
+
+  // 2. Télécharger le buffer du sujet depuis le storage pour l'IA
+  const { data: subjectBlob, error: downloadError } = await supabaseAdmin.storage
+    .from('subjects')
+    .download(subject.storage_path);
+
+  if (downloadError) {
+    console.error('[CorrectionsService] Erreur téléchargement sujet pour IA:', downloadError);
+  }
+
+  // 3. Validation IA
+  const aiService = require('../ai/ai.service');
+  const aiValidation = await aiService.validateCorrectionIA({
+    subjectBuffer: subjectBlob ? Buffer.from(await subjectBlob.arrayBuffer()) : null,
+    subjectMime: 'application/pdf', // Hypothèse par défaut
+    correctionBuffer: file ? file.buffer : null,
+    correctionMime: file ? file.mimetype : null,
+    correctionText: content
+  });
+
+  if (!aiValidation.correspondance_sujet || aiValidation.score_justesse < 50) {
+    throw { 
+      status: 400, 
+      message: "L'IA a détecté que cette correction ne correspond pas au sujet ou est de trop faible qualité.",
+      details: aiValidation.erreurs_detectees
+    };
+  }
+
   let file_url = null;
   let storage_path = null;
 
-  // 1. Gérer l'upload si un fichier est fourni
+  // 4. Gérer l'upload si un fichier est fourni
   if (file) {
     const uploadResult = await uploadCorrectionFile(file.buffer, file.mimetype);
     file_url = uploadResult.file_url;
     storage_path = uploadResult.storage_path;
   }
 
-  // 2. Déterminer le statut initial
-  // OFFICIELLE -> PUBLIE immédiatement
-  // IA_GENEREE -> BROUILLON par défaut (doit être validée par un prof)
+  // 5. Déterminer le statut initial
   const status = source === 'OFFICIELLE' ? 'PUBLIE' : 'BROUILLON';
 
-  // 3. Insertion
+  // 6. Insertion
   const { data, error } = await supabaseAdmin
     .from('corrections')
     .insert([{
@@ -60,7 +94,7 @@ async function publishCorrection({ subjectId, content, file, source, userId }) {
 
   if (error) throw error;
 
-  return data;
+  return { ...data, ai_analysis: aiValidation };
 }
 
 async function getCorrections(subjectId, userRole) {
@@ -71,7 +105,7 @@ async function getCorrections(subjectId, userRole) {
 
   // Un étudiant ne voit que les corrections publiées
   if (userRole === 'ETUDIANT') {
-    query = query.eq('status', 'PUBLIE');
+    query = query.eq("status', "PUBLIE');
   }
 
   const { data, error } = await query.order('created_at', { ascending: false });

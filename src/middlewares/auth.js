@@ -11,7 +11,7 @@ function auth(req, res, next) {
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({ 
         success: false, 
-        message: 'Token d'authentification manquant ou format invalide' 
+        message: `Token d'authentification manquant ou format invalide` 
       });
     }
 

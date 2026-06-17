@@ -14,7 +14,7 @@ const subjectSchema = z.object({
   filiere_id: z.string().uuid('ID de filière invalide'),
   matiere_id: z.string().uuid('ID de matière invalide'),
   annee: z.number().int().min(1900).max(2100),
-  type_examen: z.enum(['NORMAL', 'RATTRAPAGE', 'CC', 'TP']),
+  type_examen: z.enum(["NORMAL', "RATTRAPAGE", 'CC", 'TP']),
 });
 
 // --- ROUTES ---
@@ -93,7 +93,7 @@ router.delete('/:id', auth, async (req, res, next) => {
 });
 
 // Forcer la publication (ADMIN seulement)
-router.put('/:id/force-publish', auth, requireRole('ADMIN'), async (req, res, next) => {
+router.put("/:id/force-publish', auth, requireRole("ADMIN'), async (req, res, next) => {
   // Cette logique sera ajoutée au service
   try {
     const { data, error } = await supabaseAdmin
