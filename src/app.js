@@ -65,6 +65,7 @@ const subjectsRouter = require('./modules/subjects/subjects.routes');
 const correctionsRouter = require('./modules/corrections/corrections.routes');
 const aiRouter = require('./modules/ai/ai.routes');
 const adminRouter = require('./modules/admin/admin.routes');
+const announcementsRouter = require('./modules/announcements/announcements.routes');
 const errorHandler = require('./middlewares/error');
 
 // Routes
@@ -74,6 +75,7 @@ app.use('/api/v1/subjects', subjectsRouter);
 app.use('/api/v1/corrections', correctionsRouter);
 app.use('/api/v1/ai', aiRouter);
 app.use('/api/v1/admin', adminRouter);
+app.use('/api/v1/announcements', announcementsRouter);
 
 // Global Error Handler
 app.use(errorHandler);
