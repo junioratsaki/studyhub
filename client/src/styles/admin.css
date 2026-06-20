@@ -1,0 +1,24 @@
+/* src/styles/admin.css */
+:root {
+  --admin-bg: #0a0a0a; /* Very dark background */
+  --admin-primary: #ff6b6b; /* Accent color matching logo (example) */
+  --admin-accent: #ffd166; /* Secondary accent */
+  --admin-text: #e0e0e0; /* Light text */
+  --admin-card-bg: rgba(255, 255, 255, 0.05);
+}
+
+/* Utility classes (Tailwind can be extended, but for simplicity we use plain CSS) */
+.admin-bg {
+  background-color: var(--admin-bg);
+  color: var(--admin-text);
+}
+.admin-card {
+  background: var(--admin-card-bg);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.admin-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
