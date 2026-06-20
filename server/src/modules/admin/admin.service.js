@@ -129,7 +129,7 @@ async function getPendingSubjects() {
       users!author_id(nom, email),
       filieres(nom),
       matieres(nom),
-      ai_scan_reports!scan_report_id(score_coherence, is_duplicate, comment)
+      ai_scan_reports!scan_report_id(score_coherence, is_duplicate, commentaires)
     `)
     .eq('status', 'EN_ATTENTE')
     .order('created_at', { ascending: true });
@@ -172,6 +172,36 @@ async function createAnnouncement({ title, content, adminId }) {
   return data;
 }
 
+async function getReports({ status, page = 1, limit = 20 }) {
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+
+  let query = supabaseAdmin
+    .from('reports')
+    .select(`*, subjects(title), users!reporter_id(nom, email)`, { count: 'exact' });
+
+  if (status) query = query.eq('status', status);
+
+  const { data, error, count } = await query
+    .order('created_at', { ascending: false })
+    .range(from, to);
+
+  if (error) throw error;
+  return { data, count, page, totalPages: Math.ceil((count || 0) / limit) };
+}
+
+async function updateReportStatus(reportId, status) {
+  const { data, error } = await supabaseAdmin
+    .from('reports')
+    .update({ status, updated_at: new Date().toISOString() })
+    .eq('id', reportId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
 module.exports = {
   getUsers,
   blockUser,
@@ -181,5 +211,7 @@ module.exports = {
   getLogs,
   getPendingSubjects,
   updateSubjectStatus,
-  createAnnouncement
+  createAnnouncement,
+  getReports,
+  updateReportStatus
 };

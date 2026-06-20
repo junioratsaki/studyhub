@@ -245,6 +245,17 @@ async function getMatieres(filiereId) {
   return data;
 }
 
+async function createReport({ subjectId, userId, reason, description }) {
+  const { data, error } = await supabaseAdmin
+    .from('reports')
+    .insert([{ subject_id: subjectId, reporter_id: userId, reason, description }])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
 module.exports = {
   uploadToStorage,
   createSubject,
@@ -254,4 +265,5 @@ module.exports = {
   deleteSubject,
   getFilieres,
   getMatieres,
+  createReport,
 };

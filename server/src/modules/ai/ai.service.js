@@ -38,7 +38,7 @@ async function scanDocument({ fileBuffer, mimetype, description }) {
     const result = await model.generateContent([prompt, part]);
     const response = await result.response;
     const text = response.text();
-    
+
     // Nettoyer la réponse pour extraire le JSON proprement
     const jsonString = text.replace(/```json/g, '').replace(/```/g, '').trim();
     const scanData = JSON.parse(jsonString);
@@ -49,7 +49,7 @@ async function scanDocument({ fileBuffer, mimetype, description }) {
       .insert([{
         score_coherence: scanData.score_coherence,
         is_duplicate: scanData.is_duplicate,
-        commentaires: scanData, // On stocke tout le JSON pour référence
+        commentaires: scanData.commentaires,
         passed: scanData.score_coherence >= 70 && !scanData.is_duplicate
       }])
       .select()
@@ -57,10 +57,10 @@ async function scanDocument({ fileBuffer, mimetype, description }) {
 
     if (error) throw error;
 
-    return { 
-      passed: report.passed, 
-      score: report.score_coherence, 
-      report 
+    return {
+      passed: report.passed,
+      score: report.score_coherence,
+      report
     };
   } catch (err) {
     console.error('[AIService] Erreur scanDocument:', err);
@@ -206,7 +206,7 @@ async function streamEduBot({ sessionId, userMessage, res }) {
     });
 
     const result = await chat.sendMessageStream([systemPrompt, userMessage]);
-    
+
     let fullResponse = '';
 
     for await (const chunk of result.stream) {

@@ -144,8 +144,22 @@ create table if not exists public.audit_logs (
     created_at timestamptz default now() not null
 );
 
+-- 14. Table REPORTS (Signalements)
+create table if not exists public.reports (
+  id uuid primary key default gen_random_uuid(),
+  subject_id uuid references public.subjects(id) on delete cascade not null,
+  reporter_id uuid references public.users(id) on delete cascade not null,
+  reason text not null,
+  description text,
+  status text default 'pending' check (status in ('pending', 'resolved', 'dismissed')),
+  created_at timestamptz default now() not null,
+  updated_at timestamptz default now() not null
+);
+
 -- INDEXES pour la performance
 create index if not exists idx_users_email on public.users(email);
 create index if not exists idx_subjects_filiere on public.subjects(filiere_id);
 create index if not exists idx_subjects_matiere on public.subjects(matiere_id);
 create index if not exists idx_subjects_status on public.subjects(status);
+create index if not exists idx_reports_subject on public.reports(subject_id);
+create index if not exists idx_reports_status on public.reports(status);

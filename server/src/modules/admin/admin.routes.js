@@ -132,4 +132,29 @@ router.post('/announcements', validate(z.object({
   }
 });
 
+/**
+ * Liste des signalements
+ */
+router.get('/reports', async (req, res, next) => {
+  try {
+    const { status, page } = req.query;
+    const result = await adminService.getReports({ status, page: parseInt(page) || 1 });
+    res.json({ success: true, data: result });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * Mettre à jour le statut d'un signalement
+ */
+router.patch('/reports/:id/status', validate(z.object({ status: z.enum(['pending', 'resolved', 'dismissed']) })), async (req, res, next) => {
+  try {
+    const result = await adminService.updateReportStatus(req.params.id, req.body.status);
+    res.json({ success: true, data: result });
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;

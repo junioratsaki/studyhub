@@ -134,4 +134,19 @@ router.get('/matieres', async (req, res, next) => {
   }
 });
 
+// Signaler un sujet
+router.post('/:id/report', auth, validate(z.object({ reason: z.string().min(5), description: z.string().optional() })), async (req, res, next) => {
+  try {
+    const report = await subjectsService.createReport({
+      subjectId: req.params.id,
+      userId: req.user.id,
+      reason: req.body.reason,
+      description: req.body.description
+    });
+    res.status(201).json({ success: true, data: report });
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;

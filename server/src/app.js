@@ -41,17 +41,30 @@ const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
 // Global Middlewares
 app.use(helmet({
-  contentSecurityPolicy: false, // Désactivé pour permettre à Swagger UI de s'afficher correctement
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:"],
+    },
+  },
 }));
 app.use(cors({
-  origin: process.env.FRONTEND_URL || '*',
-  credentials: true
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  credentials: true,
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Documentation API
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// Redirect root to Swagger docs
+app.get('/', (req, res) => {
+  res.redirect('/api-docs');
+});
 
 // Health Check
 app.get('/health', (req, res) => {

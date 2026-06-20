@@ -26,6 +26,7 @@ const uploadSingle = upload.single('file');
 const uploadOptional = upload.single('file'); // Même logique, mais utilisé pour les corrections
 
 module.exports = {
+  upload,
   uploadSingle,
   uploadOptional,
 };

@@ -4,7 +4,7 @@ const authService = require('./auth.service');
 const { z } = require('zod');
 const { validate } = require('../../middlewares/validate');
 const auth = require('../../middlewares/auth');
-const rbac = require('../../middlewares/rbac');
+const { requireRole } = require('../../middlewares/rbac');
 
 // --- SCHÉMAS DE VALIDATION ZOD (Version ERP) ---
 
@@ -23,6 +23,8 @@ const loginSchema = z.object({
   email: z.string().email('Email invalide'),
 });
 
+// Trigger nodemon reload
+
 // --- HANDLERS ---
 
 /**
@@ -35,7 +37,7 @@ const loginSchema = z.object({
  *       - bearerAuth: []
  */
 // INSCRIPTION PUBLIQUE DÉSACTIVÉE : Seul un ADMIN peut créer des comptes
-router.post('/register', auth, rbac(['ADMIN']), validate(registerSchema), async (req, res, next) => {
+router.post('/register', auth, requireRole('ADMIN'), validate(registerSchema), async (req, res, next) => {
   try {
     const user = await authService.register(req.body);
     res.status(201).json({ success: true, data: user });
@@ -63,7 +65,7 @@ router.post('/refresh', async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
     if (!refreshToken) throw { status: 400, message: 'Refresh token manquant' };
-    
+
     const result = await authService.refreshToken(refreshToken);
     res.json({ success: true, data: result });
   } catch (err) {

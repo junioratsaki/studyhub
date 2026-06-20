@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const usersService = require('./users.service');
 const auth = require('../../middlewares/auth');
-const upload = require('../../middlewares/upload');
+const { upload } = require('../../middlewares/upload');
 const { z } = require('zod');
 const { validate } = require('../../middlewares/validate');
 
@@ -44,10 +44,10 @@ router.patch('/me', auth, validate(updateProfileSchema), async (req, res, next) 
 router.patch('/me/avatar', auth, upload.single('avatar'), async (req, res, next) => {
   try {
     if (!req.file) throw { status: 400, message: 'Aucun fichier envoyé' };
-    
+
     // On suppose que le middleware 'upload' ajoute 'location' ou 'publicUrl' à req.file
-    const avatarUrl = req.file.location || req.file.publicUrl; 
-    
+    const avatarUrl = req.file.location || req.file.publicUrl;
+
     await usersService.updateAvatar(req.user.id, avatarUrl);
     res.json({ success: true, data: { avatar_url: avatarUrl } });
   } catch (err) {
