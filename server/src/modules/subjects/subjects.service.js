@@ -221,6 +221,30 @@ async function deleteSubject(id, requestingUser) {
   return { success: true, message: 'Sujet supprimé avec succès' };
 }
 
+async function getFilieres() {
+  const { data, error } = await supabaseAdmin
+    .from('filieres')
+    .select('*')
+    .order('nom');
+  
+  if (error) throw error;
+  return data;
+}
+
+async function getMatieres(filiereId) {
+  let query = supabaseAdmin
+    .from('matieres')
+    .select('*');
+  
+  if (filiereId) {
+    query = query.eq('filiere_id', filiereId);
+  }
+  
+  const { data, error } = await query.order('nom');
+  if (error) throw error;
+  return data;
+}
+
 module.exports = {
   uploadToStorage,
   createSubject,
@@ -228,4 +252,6 @@ module.exports = {
   searchSubjects,
   getSubjectById,
   deleteSubject,
+  getFilieres,
+  getMatieres,
 };

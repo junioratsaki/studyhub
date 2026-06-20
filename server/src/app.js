@@ -60,6 +60,7 @@ app.get('/health', (req, res) => {
 
 // Import Routers
 const authRouter = require('./modules/auth/auth.routes');
+const referentielRouter = require('./modules/referentiel/referentiel.routes');
 const usersRouter = require('./modules/users/users.routes');
 const subjectsRouter = require('./modules/subjects/subjects.routes');
 const correctionsRouter = require('./modules/corrections/corrections.routes');
@@ -70,6 +71,7 @@ const errorHandler = require('./middlewares/error');
 
 // Routes
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/referentiel', referentielRouter);
 app.use('/api/v1/users', usersRouter);
 app.use('/api/v1/subjects', subjectsRouter);
 app.use('/api/v1/corrections', correctionsRouter);

@@ -1,0 +1,110 @@
+# 📜 DIRECTIVE DE DÉVELOPPEMENT FRONTEND - StudyHub IUC
+
+Ce document constitue la spécification technique et visuelle ultime pour l'implémentation du frontend de StudyHub IUC. Il est conçu pour servir de guide à un développeur ou à un modèle d'IA (Cursor/Windsurf) afin de garantir une fidélité totale au rapport de conception.
+
+---
+
+## 🛠 1. STACK TECHNIQUE & STANDARDS
+- **Framework :** React.js (Vite.js)
+- **Styling :** Tailwind CSS v4 (Utiliser `@import "tailwindcss";`)
+- **Animations :** Framer Motion (pour le côté "vivant" et moderne)
+- **Icônes :** Lucide-React
+- **Navigation :** React Router DOM
+- **Gestion d'État :** AuthContext (JWT) + React Hooks
+- **API :** Axios (avec intercepteurs pour le Refresh Token)
+- **Rendu Mathématique :** LaTeX (via KaTeX ou MathJax)
+- **Streaming :** Server-Sent Events (SSE) pour EduBot
+
+---
+
+## 📅 2. TODO LIST DE RÉALISATION (GUIDE DE SUIVI)
+
+### Phase 1 : Fondations & Sécurité ✅
+- [x] Initialisation React Vite + Tailwind CSS v4
+- [x] Setup Axios & Intercepteurs JWT
+- [x] AuthContext & `useAuth` hook
+- [x] Système de routage & `ProtectedRoute`
+- [ ] Pages Login & Register (UI + API)
+- [ ] Test de flux : Login $
+ightarrow$ Dashboard
+
+### Phase 2 : Vitrine & Acquisition 📅
+- [ ] Header & Footer persistants (Responsives)
+- [ ] Landing Page : Hero Slider (3 images, fade transition)
+- [ ] Landing Page : Section Fonctionnalités (3 cartes avec hover effect)
+- [ ] Landing Page : Carrousel de Témoignages
+- [ ] Intégration des animations d'entrée (Framer Motion)
+
+### Phase 3 : Expérience Étudiant (Le Cœur) 📅
+- [ ] Layout Dashboard + NavMobile (4 onglets fixes en bas sur mobile)
+- [ ] Dashboard Accueil : Carousel d'annonces + Quick Stats
+- [ ] Bibliothèque de Sujets : Filtres avancés (Filière, Année, Type) + Grid paginée
+- [ ] **Interface Split-View** : Visionneuse PDF (gauche) + Chat EduBot (droite)
+- [ ] **EduBot Chat** : Implémentation du streaming SSE (effet d'écriture en direct)
+- [ ] Pages Favoris & Historique de lecture
+
+### Phase 4 : Panel Administration 📅
+- [ ] Layout Admin avec Sidebar
+- [ ] Dashboard Stats : Graphiques Recharts (Utilisateurs, Sujets, Sessions)
+- [ ] Gestion Utilisateurs : Tableau avec actions (Bloquer/Supprimer)
+- [ ] **Queue de Validation** : Interface de revue des rapports IA (Score cohérence, Doublons)
+- [ ] Page Analytics détaillée
+
+### Phase 5 : Polissage & Livraison 📅
+- [ ] Gestion globale des erreurs (Toast notifications)
+- [ ] Optimisation des images & Lazy loading
+- [ ] Validation finale du responsive (iPhone/iPad/Desktop)
+- [ ] Déploiement sur Vercel
+
+---
+
+## 🎨 3. DESCRIPTION DÉTAILLÉE DES INTERFACES & PROMPTS
+
+### 🏠 A. Landing Page (L'Impact Visuel)
+- **UX** : Doit être "épurée", "moderne" et "institutionnelle".
+- **Éléments clés** : 
+  - Slider Hero : Images d'étudiants/campus $
+ightarrow$ Overlay noir 40% $
+ightarrow$ Texte blanc centré.
+  - Cartes Features : Effet d'élévation au survol.
+- **PROMPT IDE** : 
+> "Crée une Landing Page moderne pour StudyHub IUC. Utilise Next.js/React avec Tailwind CSS v4 et Framer Motion. Inclus : 1) Un Header sticky avec logo et boutons Auth. 2) Un Hero Slider plein écran (h-screen) avec transition fade entre 3 images Unsplash, texte centré blanc et bouton 'Explorer'. 3) Une section 'Pourquoi StudyHub ?' avec 3 cartes (Sujets, IA, Partage) utilisant des icônes Lucide-React et des effets de hover (translateY). 4) Un carrousel de témoignages d'étudiants. 5) Un footer sombre et complet. Le design doit être mobile-first et ultra-poli."
+
+### 🔐 B. Authentification (Simplicité & Sécurité)
+- **UX** : Formulaire centré, fond gris très clair, focus bleu vif.
+- **Éléments clés** : Icônes dans les inputs, gestion d'erreur en rouge, spinners de chargement.
+- **IMPORTANT** : L'inscription est désactivée pour les étudiants. Seul le Login est accessible.
+- **PROMPT IDE** : 
+> "Crée la page Login. Le design doit être minimaliste : carte blanche centrée, ombre portée douce, inputs avec icônes Lucide (Mail, Lock, User). Implémente la validation avec Zod et React Hook Form. Lie le formulaire au `useAuth` hook pour gérer la connexion. Ajoute un état de chargement (Loader2) sur le bouton de soumission."
+
+### 📊 C. Dashboard Étudiant & Bibliothèque
+- **UX** : Navigation intuitive, accès rapide aux ressources.
+- **Éléments clés** : 
+  - **NavMobile** : Barre fixe en bas (Accueil, Sujets, Favoris, Profil).
+  - **Filtres** : Barre sticky en haut de la bibliothèque pour filtrer sans perdre la vue.
+- **PROMPT IDE** : 
+> "Implémente le Dashboard Étudiant. 1) Crée une NavMobile fixe en bas pour mobile. 2) Page d'accueil avec un carousel d'annonces et une grille de sujets récents. 3) Page Bibliothèque : crée une barre de filtres sticky (Recherche, Filière, Type d'examen, Année) et une grille de SubjectCards. Chaque carte doit afficher le titre, la matière, le nombre de vues et un bouton 'Consulter' ainsi qu'un cœur pour les favoris. Utilise la pagination côté serveur."
+
+### 🤖 D. Page Détail & EduBot (L'Innovation)
+- **UX** : Concentration maximale. Pas de distractions.
+- **Éléments clés** : 
+  - **Split-View** : PDF à gauche (60%), Chat à droite (40%).
+  - **EduBot** : Bulles de conversation, streaming de texte token par token (SSE), rendu LaTeX pour les maths.
+- **PROMPT IDE** : 
+> "Crée la page de détail sujet avec interface Split-View. Gauche : Visionneuse PDF (react-pdf) avec navigation par page. Droite : Panneau de chat EduBot. Le chat doit utiliser SSE pour afficher la réponse de l'IA en temps réel (effet d'écriture). Applique la méthode socratique dans l'UI : l'IA guide l'utilisateur. Intègre le rendu LaTeX pour les formules scientifiques. Ajoute un bouton 'Demander à l'IA' qui ouvre le volet de chat si aucune correction n'est présente."
+
+### 🛠 E. Dashboard Admin (Contrôle & Analytics)
+- **UX** : Efficacité, tableaux de données, graphiques clairs.
+- **Éléments clés** : 
+  - **Stats** : Cartes avec indicateurs de tendance (+/- %).
+  - **Validation Queue** : Liste de sujets 'EN_ATTENTE' avec le score de cohérence IA affiché via une barre de progression.
+- **PROMPT IDE** : 
+> "Développe le panel Admin. 1) Layout avec Sidebar de navigation. 2) Page Stats avec des graphiques Recharts (LineChart pour l'activité, PieChart pour la répartition des rôles). 3) Page Gestion Utilisateurs : tableau avec filtres par rôle et actions (Bloquer/Supprimer). 4) Page Queue de Validation : affiche les rapports de l'IA (score de cohérence, détection de doublons) pour chaque sujet soumis, avec boutons 'Valider' et 'Rejeter'."
+
+---
+
+## ⚙️ 3. GUIDE D'INTÉGRATION API (RAPPEL)
+- **Base URL** : `http://localhost:3000/api/v1`
+- **Auth** : Header `Authorization: Bearer <token>`
+- **SSE** : Endpoint `/api/v1/ai/edubot/stream/:sessionId?message=...`
+- **Images** : Utiliser des URLs externes (Unsplash) pour la landing page.

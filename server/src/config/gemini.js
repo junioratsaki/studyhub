@@ -4,7 +4,7 @@ require('dotenv').config();
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 function getModel() {
-  return genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+  return genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
 }
 
 module.exports = {

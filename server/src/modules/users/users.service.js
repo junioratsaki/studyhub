@@ -2,12 +2,33 @@ const bcrypt = require('bcrypt');
 const { supabaseAdmin } = require('../../config/supabase');
 
 /**
- * Service de gestion des utilisateurs et de leurs préférences
+ * Service de gestion des utilisateurs ERP
  */
 async function getProfile(userId) {
+  // Récupération du profil avec jointures ERP complètes
   const { data, error } = await supabaseAdmin
     .from('users')
-    .select('id, nom, email, role, filiere_id, avatar_url, is_active, created_at')
+    .select(`
+      id, 
+      matricule, 
+      nom, 
+      email, 
+      role, 
+      avatar_url, 
+      is_active, 
+      created_at,
+      filiere_id,
+      filiere:filieres (
+        id, 
+        nom, 
+        ecole:ecoles (
+          id, 
+          nom, 
+          campus:campus (nom)
+        ),
+        niveau:niveaux (nom)
+      )
+    `)
     .eq('id', userId)
     .single();
 
@@ -15,10 +36,22 @@ async function getProfile(userId) {
   return data;
 }
 
-async function updateProfile(userId, { nom, avatar_url, filiere_id }) {
+async function updateProfile(userId, { nom, filiere_id }) {
   const { data, error } = await supabaseAdmin
     .from('users')
-    .update({ nom, avatar_url, filiere_id })
+    .update({ nom, filiere_id })
+    .eq('id', userId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+async function updateAvatar(userId, avatarUrl) {
+  const { data, error } = await supabaseAdmin
+    .from('users')
+    .update({ avatar_url: avatarUrl })
     .eq('id', userId)
     .select()
     .single();
@@ -28,7 +61,6 @@ async function updateProfile(userId, { nom, avatar_url, filiere_id }) {
 }
 
 async function changePassword(userId, { currentPassword, newPassword }) {
-  // 1. Récupérer le hash actuel
   const { data: user, error: fetchError } = await supabaseAdmin
     .from('users')
     .select('password_hash')
@@ -39,16 +71,13 @@ async function changePassword(userId, { currentPassword, newPassword }) {
     throw { status: 404, message: 'Utilisateur non trouvé' };
   }
 
-  // 2. Vérifier l'ancien mot de passe
   const isMatch = await bcrypt.compare(currentPassword, user.password_hash);
   if (!isMatch) {
     throw { status: 400, message: 'Le mot de passe actuel est incorrect' };
   }
 
-  // 3. Hacher le nouveau mot de passe
   const newHash = await bcrypt.hash(newPassword, 12);
 
-  // 4. Mise à jour
   const { error: updateError } = await supabaseAdmin
     .from('users')
     .update({ password_hash: newHash })
@@ -92,7 +121,6 @@ async function addFavorite(userId, subjectId) {
     .single();
 
   if (error) {
-    // Si c"est une erreur de contrainte UNIQUE, on peut l'ignorer ou informer l"utilisateur
     if (error.code === '23505') {
       return { success: true, message: 'Sujet déjà en favoris' };
     }
@@ -115,6 +143,7 @@ async function removeFavorite(userId, subjectId) {
 module.exports = {
   getProfile,
   updateProfile,
+  updateAvatar,
   changePassword,
   getHistory,
   getFavorites,

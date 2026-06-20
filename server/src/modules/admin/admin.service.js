@@ -74,22 +74,32 @@ async function generateCode(adminId) {
 }
 
 async function getStats() {
-  const [users, subjects, corrections, sessions] = await Promise.all([
-    supabaseAdmin.from("users").select("role", { count: 'exact', head: true }),
-    supabaseAdmin.from("subjects").select("status", { count: 'exact', head: true }),
+  const [users, subjects, corrections, sessions] = await Promise.allSettled([
+    supabaseAdmin.from("users").select("id", { count: 'exact', head: true }),
+    supabaseAdmin.from("subjects").select("id", { count: 'exact', head: true }),
     supabaseAdmin.from("corrections").select("id", { count: 'exact', head: true }),
     supabaseAdmin.from("ai_sessions").select("id", { count: 'exact', head: true })
   ]);
 
-  // Pour des stats plus détaillées, on ferait des requêtes spécifiques
-  const { data: userStats } = await supabaseAdmin.rpc('get_user_stats_by_role'); 
-  // Note: RPC requis pour group by propre ou faire plusieurs requêtes
+  const safeCount = (result) =>
+    result.status === 'fulfilled' ? (result.value.count ?? 0) : 0;
+
+  // Répartition par rôle (requête simple, pas de RPC)
+  const { data: roleData } = await supabaseAdmin
+    .from('users')
+    .select('role');
+
+  const roleDistribution = {};
+  (roleData || []).forEach(u => {
+    roleDistribution[u.role] = (roleDistribution[u.role] || 0) + 1;
+  });
 
   return {
-    total_users: users.count,
-    total_subjects: subjects.count,
-    total_corrections: corrections.count,
-    total_ai_sessions: sessions.count
+    total_users: safeCount(users),
+    total_subjects: safeCount(subjects),
+    total_corrections: safeCount(corrections),
+    total_ai_sessions: safeCount(sessions),
+    role_distribution: Object.entries(roleDistribution).map(([name, value]) => ({ name, value })),
   };
 }
 
@@ -109,6 +119,41 @@ async function getLogs({ level, page = 1, limit = 50 }) {
 
   if (error) throw error;
   return { data, count, page };
+}
+
+async function getPendingSubjects() {
+  const { data, error } = await supabaseAdmin
+    .from('subjects')
+    .select(`
+      *,
+      users!author_id(nom, email),
+      filieres(nom),
+      matieres(nom),
+      ai_scan_reports!scan_report_id(score_coherence, is_duplicate, comment)
+    `)
+    .eq('status', 'EN_ATTENTE')
+    .order('created_at', { ascending: true });
+
+  if (error) throw error;
+
+  // Aplatir le rapport IA pour la commodité du frontend
+  return (data || []).map(s => ({
+    ...s,
+    ai_scan_report: s.ai_scan_reports || null,
+    ai_scan_reports: undefined,
+  }));
+}
+
+async function updateSubjectStatus(subjectId, status) {
+  const { data, error } = await supabaseAdmin
+    .from('subjects')
+    .update({ status })
+    .eq('id', subjectId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
 }
 
 async function createAnnouncement({ title, content, adminId }) {
@@ -134,5 +179,7 @@ module.exports = {
   generateCode,
   getStats,
   getLogs,
+  getPendingSubjects,
+  updateSubjectStatus,
   createAnnouncement
 };

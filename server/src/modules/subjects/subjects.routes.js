@@ -113,4 +113,25 @@ router.put("/:id/force-publish", auth, requireRole("ADMIN"), async (req, res, ne
   }
 });
 
+// Liste des filières
+router.get('/filieres', async (req, res, next) => {
+  try {
+    const result = await subjectsService.getFilieres();
+    res.json({ success: true, data: result });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Liste des matières
+router.get('/matieres', async (req, res, next) => {
+  try {
+    const { filiere_id } = req.query;
+    const result = await subjectsService.getMatieres(filiere_id);
+    res.json({ success: true, data: result });
+  } catch (err) {
+    next(err);
+  }
+});
+
 module.exports = router;

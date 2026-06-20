@@ -91,6 +91,30 @@ router.get('/logs', async (req, res, next) => {
 });
 
 /**
+ * Queue de validation – sujets EN_ATTENTE
+ */
+router.get('/subjects-validation', async (req, res, next) => {
+  try {
+    const result = await adminService.getPendingSubjects();
+    res.json({ success: true, data: result });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * Changer le statut d'un sujet (valider ou rejeter)
+ */
+router.patch('/subjects/:id/status', validate(z.object({ status: z.enum(['PUBLIE', 'REJETE']) })), async (req, res, next) => {
+  try {
+    const result = await adminService.updateSubjectStatus(req.params.id, req.body.status);
+    res.json({ success: true, data: result });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
  * Créer une annonce globale
  */
 router.post('/announcements', validate(z.object({ 

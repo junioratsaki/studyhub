@@ -4,14 +4,13 @@ const authService = require('./auth.service');
 const { z } = require('zod');
 const { validate } = require('../../middlewares/validate');
 
-// Route handlers sont définis directement ici pour simplifier le module auth
-// conformément au prompt.
-
+// Schémas de validation mis à jour pour l'ERP
 router.post('/register', validate(z.object({
   nom: z.string().min(2),
-  email: z.string().email(),
+  matricule: z.string().min(3), // Obligatoire
+  email: z.string().email().optional().or(z.literal('')), 
   password: z.string().min(8),
-  role: z.enum(["ETUDIANT', "ENSEIGNANT", 'ADMIN"]),
+  role: z.enum(['ETUDIANT', 'ENSEIGNANT', 'ADMIN']),
   filiere_id: z.string().uuid().optional(),
   code: z.string().optional(),
 })), async (req, res, next) => {
@@ -24,7 +23,7 @@ router.post('/register', validate(z.object({
 });
 
 router.post('/login', validate(z.object({
-  email: z.string().email(),
+  matricule: z.string().min(1), // Connexion par matricule
   password: z.string().min(1),
 })), async (req, res, next) => {
   try {
